@@ -7,70 +7,137 @@
 template< template<typename, typename> class DerivedNodeType, typename KeyType, typename ValueType>
 class BaseNode {
 private:
+	
+	using NodeType = DerivedNodeType<KeyType, ValueType>;
+	using NodePtrType = NodeType*;
 
 	BaseNode() = default;
 
 protected:
 
-	using BaseNodeType = BaseNode<DerivedNodeType, KeyType, ValueType>;
-	using NodeType = DerivedNodeType<KeyType, ValueType>;
-	using NodePtrType = NodeType*;
+	NodePtrType parent;
+	NodePtrType right;
+	NodePtrType left;
 
-	BaseNode(const KeyType &key, const ValueType &value) : key(key), value(value) {
-		right = nullptr;
-		left = nullptr;
+	explicit BaseNode(const KeyType &key, const ValueType &value) :
+		parent(nullptr),
+		right(nullptr),
+		left(nullptr),
+		key(key),
+		value(value) {
+		;
 	}
 
-	BaseNode(const BaseNodeType &node) :
-		right(node.right),
-		left(node.left),
+	explicit BaseNode(const NodeType &node, const NodePtrType parent = nullptr) :
+		parent(parent),
+		right(nullptr),
+		left(nullptr),
 		key(node.key),
 		value(node.value) {
 		;
 	}
 
-	BaseNode(const BaseNodeType &node, NodePtrType right, NodePtrType left) :
-		right(right),
-		left(left),
-		key(node.key),
-		value(node.value) {
+	explicit BaseNode(const NodePtrType node, const NodePtrType parent = nullptr) :
+		parent(parent),
+		right(nullptr),
+		left(nullptr),
+		key(node->key),
+		value(node->value) {
 		;
 	}
 
 public:
-
-	NodePtrType parent;
-	NodePtrType right;
-	NodePtrType left;
+	
 	KeyType key;
 	ValueType value;
 
 };
 
 
-template<typename KeyType, typename ValueType>
-class SimpleNode : public BaseNode<SimpleNode, KeyType, ValueType> {
+template<typename NodeType>
+class InorderIterator {
 private:
-	
-	using BaseNodeType = BaseNode<::SimpleNode, KeyType, ValueType>;
-	using NodeType = SimpleNode<KeyType, ValueType>;
+
+	using IteratorType = InorderIterator<NodeType>;
 	using NodePtrType = NodeType*;
 
-	SimpleNode() = default;
+	NodePtrType ptr;
 
 public:
 
-	NodePtrType parent;
+	explicit InorderIterator(const NodePtrType ptr = nullptr) : ptr(ptr) { ; }
 
-	SimpleNode(const KeyType &key, const ValueType &value) : BaseNodeType(key, value) {
-		parent = nullptr;
+	InorderIterator(const IteratorType &iter) : ptr(iter.ptr), { ; }
+
+	const IteratorType &operator=(const IteratorType &iter) {
+		ptr = iter.ptr;
+		return *this;
 	}
 
-	SimpleNode(const NodeType &node) : BaseNodeType(node), parent(node.parent) { ; }
+	const IteratorType &operator=(const NodePtrType node_ptr) {
+		ptr = node_ptr;
+		return *this;
+	}
 
-	SimpleNode(const NodeType &node, NodePtrType parent) : BaseNodeType(node), parent(parent) { ; }
+	IteratorType &operator++();
+
+	IteratorType operator++(int);
+
+	IteratorType &operator--();
+
+	IteratorType operator--(int);
 
 };
+
+template<typename NodeType>
+typename InorderIterator<NodeType>::IteratorType &InorderIterator<NodeType>::operator++()
+{
+	if (!ptr) return *this;
+
+	else if (ptr->right) {
+		
+		ptr = ptr->right;
+		
+		while (ptr->left) 
+			ptr = ptr->left;
+	}
+	else {
+		
+		while (ptr->parent && (ptr == ptr->parent->right)) 
+			ptr = ptr->parent;
+		
+		if (!(ptr->parent))
+			ptr = nullptr;
+	}
+
+	return *this;
+}
+
+template<typename NodeType>
+typename InorderIterator<NodeType>::IteratorType InorderIterator<NodeType>::operator++(int)
+{
+	NodePtrType previous_ptr = ptr;
+
+	if (!ptr) return *this;
+
+	else if (ptr->right) {
+
+		ptr = ptr->right;
+
+		while (ptr->left)
+			ptr = ptr->left;
+	}
+	else {
+
+		while (ptr->parent && (ptr == ptr->parent->right))
+			ptr = ptr->parent;
+
+		if (!(ptr->parent))
+			ptr = nullptr;
+	}
+
+	return IteratorType(previous_ptr);
+}
 
 
 template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
@@ -83,19 +150,21 @@ private:
 
 protected:
 
+	NodePtrType head;
+
 	BinarySearchTree() : head(nullptr) { ; }
 
-	BinarySearchTree(const KeyType &key, const ValueType &value) {
-		head = new NodeType(key, value);
-	}
+	explicit BinarySearchTree(const KeyType &key, const ValueType &value) { head = new NodeType(key, value); }
 
-	BinarySearchTree(const TreeType &tree);
+	explicit BinarySearchTree(const TreeType &tree);
 
 	~BinarySearchTree();
 
 public:
 
-	NodePtrType head;
+	const NodePtrType find(const KeyType &key) const;
+
+	const NodePtrType find(const KeyType *key) const;
 
 };
 
@@ -108,21 +177,21 @@ BinarySearchTree<TreeNodeType, KeyType, ValueType>::BinarySearchTree(const TreeT
 		return;
 	}
 
-	enum { 
-		RIGHT_SUB_TREE, 
-		LEFT_SUB_TREE, 
+	enum {
+		RIGHT_SUB_TREE,
+		LEFT_SUB_TREE,
 		PARENT
 	} from = PARENT;
-	
+
 	const NodePtrType ptr = tree.head;
 	head = new NodeType(ptr);
 
 	while (ptr->parent || from) {
-		
+
 		switch (from) {
-		
+
 		case RIGHT_SUB_TREE:
-			
+
 			from = (ptr == ptr->parent->left) ? LEFT_SUB_TREE : RIGHT_SUB_TREE;
 			ptr = ptr->parent;
 			head = head->parent;
@@ -134,7 +203,7 @@ BinarySearchTree<TreeNodeType, KeyType, ValueType>::BinarySearchTree(const TreeT
 				from = PARENT;
 				ptr = ptr->right;
 				head = head->right = new NodeType(ptr, head);
-			} 
+			}
 			else from = RIGHT_SUB_TREE;
 			break;
 
@@ -162,7 +231,7 @@ BinarySearchTree<TreeNodeType, KeyType, ValueType>::~BinarySearchTree()
 		else if (head->right) head = head->right;
 
 		else {
-			
+
 			head = head->parent;
 
 			if (head->left) {
@@ -180,13 +249,59 @@ BinarySearchTree<TreeNodeType, KeyType, ValueType>::~BinarySearchTree()
 }
 
 
+template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
+{
+	const NodePtrType ptr = head;
+	
+	while (ptr && (key != ptr->key) ) 
+		ptr = (key < ptr->key) ? ptr->left : ptr->right;
+	
+
+	return ptr;
+}
+
+
+template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType *key) const
+{
+	const NodePtrType ptr = head;
+
+	while (ptr && (*key != ptr->key)) 
+		ptr = (*key < ptr->key) ? ptr->left : ptr->right;
+
+	return ptr;
+}
+
+
+template<typename KeyType, typename ValueType>
+class SimpleNode : public BaseNode<SimpleNode, KeyType, ValueType> {
+private:
+
+	friend class BinarySearchTree<::SimpleNode, KeyType, ValueType>;
+
+	using BaseNodeType = BaseNode<::SimpleNode, KeyType, ValueType>;
+	using NodeType = SimpleNode<KeyType, ValueType>;
+	using NodePtrType = NodeType*;
+
+	SimpleNode() = default;
+
+protected:
+
+	explicit SimpleNode(const KeyType &key, const ValueType &value) : BaseNodeType(key, value) { ; }
+
+	explicit SimpleNode(const NodeType &node, const NodePtrType parent = nullptr) : BaseNodeType(node, parent) { ; }
+
+	explicit SimpleNode(const NodePtrType node, const NodePtrType parent = nullptr) : BaseNodeType(node, parent) { ; }
+
+};
 
 
 class Point2D {
+public:
+
 	int x;
 	int y;
-
-public:
 
 	Point2D() : x(0), y(0) {
 		std::cout << "New point2d default constructor" << std::endl;
@@ -205,17 +320,19 @@ public:
 	}
 };
 
-
+Point2D foo()
+{
+	int a = 32;
+	std::cout << a << std::endl;
+	Point2D c(10, 10);
+	return c;
+}
 
 int main() {
 
-	Point2D simple_point(10, 20);
-	SimpleNode<Point2D, Point2D> node(simple_point, simple_point);
-	SimpleNode<Point2D, Point2D> node1(node, node.left);
-	//    ptr = (ptr->left)?(ptr->left):(ptr->right?ptr->right:ptr->parent);
-	auto a = 3;
+	std::cout << foo().x << std::endl;
 
-	std::cout << (bool)nullptr << std::endl;
-
+	Sleep(5000);
 	return 0;
 }
+
