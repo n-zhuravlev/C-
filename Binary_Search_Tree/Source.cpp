@@ -60,6 +60,7 @@ private:
 
 	using IteratorType = InorderIterator<NodeType>;
 	using NodePtrType = NodeType*;
+	using NodeRefType = NodeType&;
 
 	NodePtrType ptr;
 
@@ -87,27 +88,42 @@ public:
 
 	IteratorType operator--(int);
 
+	const bool operator bool() const { return ptr; }
+
+	const bool operator!() const { return !ptr; }
+
+	const bool operator==(const IteratorType &iter) const { return ptr == iter.ptr; }
+
+	const bool operator==(const NodePtrType ptr_) const { return ptr == ptr_; }
+
+	friend const bool operator==(const NodePtrType ptr, const IteratorType &iter);
+
+	const NodePtrType pget() const { return ptr; }
+	
+	const NodeRefType get() const { return *ptr; }
+
 };
 
 template<typename NodeType>
 typename InorderIterator<NodeType>::IteratorType &InorderIterator<NodeType>::operator++()
 {
-	if (!ptr) return *this;
 
-	else if (ptr->right) {
-		
-		ptr = ptr->right;
-		
-		while (ptr->left) 
-			ptr = ptr->left;
-	}
-	else {
-		
-		while (ptr->parent && (ptr == ptr->parent->right)) 
+	if (ptr) {
+
+		if (ptr->right) {
+			
+			ptr = ptr->right;
+			
+			while (ptr->left)
+				ptr = ptr->left;
+		}
+		else {
+
+			while (ptr->parent && (ptr == ptr->parent->right))
+				ptr = ptr->parent;
+
 			ptr = ptr->parent;
-		
-		if (!(ptr->parent))
-			ptr = nullptr;
+		}
 	}
 
 	return *this;
@@ -118,26 +134,95 @@ typename InorderIterator<NodeType>::IteratorType InorderIterator<NodeType>::oper
 {
 	NodePtrType previous_ptr = ptr;
 
-	if (!ptr) return *this;
+	if (ptr) {
 
-	else if (ptr->right) {
+		if (ptr->right) {
 
-		ptr = ptr->right;
+			ptr = ptr->right;
 
-		while (ptr->left)
-			ptr = ptr->left;
-	}
-	else {
+			while (ptr->left)
+				ptr = ptr->left;
+		}
+		else {
 
-		while (ptr->parent && (ptr == ptr->parent->right))
+			while (ptr->parent && (ptr == ptr->parent->right))
+				ptr = ptr->parent;
+
 			ptr = ptr->parent;
-
-		if (!(ptr->parent))
-			ptr = nullptr;
+		}
 	}
 
 	return IteratorType(previous_ptr);
 }
+
+
+template<typename NodeType>
+typename InorderIterator<NodeType>::IteratorType &InorderIterator<NodeType>::operator--()
+{
+
+	if (ptr) {
+
+		if (ptr->left) {
+
+			ptr = ptr->left;
+
+			while (ptr->right)
+				ptr = ptr->right;
+		}
+		else {
+
+			while (ptr->parent && (ptr == ptr->parent->left))
+				ptr = ptr->parent;
+
+			ptr = ptr->parent;
+		}
+	}
+
+	return *this;
+}
+
+
+template<typename NodeType>
+typename InorderIterator<NodeType>::IteratorType InorderIterator<NodeType>::operator--(int)
+{
+	NodePtrType previous_ptr = ptr;
+
+	if (ptr) {
+
+		if (ptr->left) {
+
+			ptr = ptr->left;
+
+			while (ptr->right)
+				ptr = ptr->right;
+		}
+		else {
+
+			while (ptr->parent && (ptr == ptr->parent->left))
+				ptr = ptr->parent;
+
+			ptr = ptr->parent;
+		}
+	}
+
+	return IteratorType(previous_ptr);
+}
+
+
+template<typename NodeType>
+inline const bool operator==(const typename InorderIterator<NodeType>::NodePtrType ptr, const typename InorderIterator<NodeType>::IteratorType &iter)
+{
+	return ptr == iter.ptr;;
+}
+
+
+
+
+
+
+
+
+
 
 
 template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
@@ -146,6 +231,7 @@ private:
 
 	using NodeType = TreeNodeType<KeyType, ValueType>;
 	using NodePtrType = NodeType*;
+	using NodeRefType = NodeType&;
 	using TreeType = BinarySearchTree<TreeNodeType, KeyType, ValueType>;
 
 protected:
@@ -162,9 +248,13 @@ protected:
 
 public:
 
-	const NodePtrType find(const KeyType &key) const;
+	const NodePtrType pfind(const KeyType &key) const;
 
-	const NodePtrType find(const KeyType *key) const;
+	const NodePtrType pfind(const KeyType *key) const;
+
+	const NodeRefType find(const KeyType &key) const;
+
+	const NodeRefType find(const KeyType *key) const;
 
 };
 
@@ -250,7 +340,7 @@ BinarySearchTree<TreeNodeType, KeyType, ValueType>::~BinarySearchTree()
 
 
 template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodeRefType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
 {
 	const NodePtrType ptr = head;
 	
@@ -258,16 +348,41 @@ const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType B
 		ptr = (key < ptr->key) ? ptr->left : ptr->right;
 	
 
+	return *ptr;
+}
+
+
+template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodeRefType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType *key) const
+{
+	const NodePtrType ptr = head;
+
+	while (ptr && (*key != ptr->key)) 
+		ptr = (*key < ptr->key) ? ptr->left : ptr->right;
+
+	return *ptr;
+}
+
+
+template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::pfind(const KeyType &key) const
+{
+	const NodePtrType ptr = head;
+
+	while (ptr && (key != ptr->key))
+		ptr = (key < ptr->key) ? ptr->left : ptr->right;
+
+
 	return ptr;
 }
 
 
 template< template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::find(const KeyType *key) const
+const typename BinarySearchTree<TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<TreeNodeType, KeyType, ValueType>::pfind(const KeyType *key) const
 {
 	const NodePtrType ptr = head;
 
-	while (ptr && (*key != ptr->key)) 
+	while (ptr && (*key != ptr->key))
 		ptr = (*key < ptr->key) ? ptr->left : ptr->right;
 
 	return ptr;
@@ -332,7 +447,7 @@ int main() {
 
 	std::cout << foo().x << std::endl;
 
-	Sleep(5000);
+	Sleep(2000);
 	return 0;
 }
 
