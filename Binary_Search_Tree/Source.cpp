@@ -614,9 +614,6 @@ typename PostorderIterator<NodeType>::IteratorType PostorderIterator<NodeType>::
 
 
 
-
-
-// update - add min key value, max key value, head value and others
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
 class BinarySearchTree {
 private:
@@ -638,6 +635,10 @@ protected:
 		head = new NodeType(key, value);
 	}
 
+	explicit BinarySearchTree(const KeyType *key, const ValueType *value) {
+		head = new NodeType(*key, *value);
+	}
+
 	BinarySearchTree(const BinarySearchTree &tree);
 
 	~BinarySearchTree();
@@ -646,8 +647,11 @@ public:
 
 	TreeType &operator=(const TreeType &tree);
 
-	const NodePtrType find(const KeyType &key) const;
+	const NodePtrType min_key() const;
+	const NodePtrType max_key() const;
+	const NodePtrType head_key() const;
 
+	const NodePtrType find(const KeyType &key) const;
 	const NodePtrType find(const KeyType *key) const;
 
 };
@@ -827,6 +831,43 @@ typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::Tr
 
 
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::min_key() const
+{
+	if (!head)
+		return nullptr;
+
+	const NodePtrType ptr = head;
+
+	while (ptr->left)
+		ptr = ptr->left;
+
+	return ptr;
+}
+
+
+template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::max_key() const
+{
+	if (!head)
+		return nullptr;
+
+	const NodePtrType ptr = head;
+
+	while (ptr->right)
+		ptr = ptr->right;
+
+	return ptr;
+}
+
+
+template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+inline const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::head_key() const
+{
+	return head;
+}
+
+
+template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
 const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
 {
 	const NodePtrType ptr = head;
@@ -851,7 +892,6 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 
 
-// update simplenode types
 template<typename KeyType, typename ValueType>
 class SimpleNode : public BaseNode<SimpleNode, KeyType, ValueType> {
 private:
@@ -860,8 +900,8 @@ private:
 	using NodeType = SimpleNode<KeyType, ValueType>;
 	using NodePtrType = NodeType*;
 
-	friend class BinarySearchTree<::SimpleNode, KeyType, ValueType>;
-	friend class InorderIterator<NodeType>;
+	//friend class BinarySearchTree<::SimpleNode, KeyType, ValueType>;
+	//friend class InorderIterator<::SimpleNode>;
 
 	SimpleNode() = default;
 
@@ -872,7 +912,7 @@ protected:
 		;
 	}
 
-	SimpleNode(const NodeType &node, const NodePtrType parent = nullptr) :
+	SimpleNode(const SimpleNode &node, const NodePtrType parent = nullptr) :
 		BaseNodeType(node, parent) {
 		;
 	}
@@ -882,6 +922,46 @@ protected:
 		;
 	}
 };
+
+
+
+template<typename KeyType, typename ValueType>
+class SimpleTree : public BinarySearchTree<SimpleTree, SimpleNode, KeyType, ValueType> {
+private:
+	
+	using BaseTreeType = BinarySearchTree<::SimpleTree, SimpleNode, KeyType, ValueType>;
+
+public:
+
+	SimpleTree() :
+		BaseTreeType() {
+		;
+	}
+
+	explicit SimpleTree(const KeyType &key, const ValueType &value) :
+		BaseTreeType(key, value) {
+		;
+	}
+
+	explicit SimpleTree(const KeyType *key, const ValueType *value) :
+		BaseTreeType(key, value) {
+		;
+	}
+
+	SimpleTree(const SimpleTree &tree) :
+		BaseTreeType(tree) {
+		;
+	}
+
+	void add(const KeyType &key, const ValueType &value);
+	void add(const KeyType *key, const ValueType *value);
+	void add(const KeyType &key, const ValueType *value);
+	void add(const KeyType *key, const ValueType &value);
+	void remove(const KeyType &key);
+	void remove(const KeyType *key);
+
+};
+
 
 
 class Point2D {
