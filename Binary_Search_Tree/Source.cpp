@@ -1,7 +1,74 @@
 #include <windows.h>
 #include "Header.h"
 #include <iostream>    
-#include <new>          
+#include <new>    
+#include <type_traits>
+#include <iostream>
+#include <string>
+
+
+template<typename T>
+struct has_lt
+{
+private:
+
+	static void detect(...);
+
+	template<typename U>
+	static decltype(static_cast<bool>(std::declval<U>() < std::declval<U>())) detect(const U &);
+
+public:
+
+	static constexpr bool value = std::is_same<bool, decltype(detect(std::declval<T>()))>::value;
+};
+
+
+template<typename T>
+struct has_gt
+{
+private:
+
+	static void detect(...);
+
+	template<typename U>
+	static decltype(static_cast<bool>(std::declval<U>() > std::declval<U>())) detect(const U &);
+
+public:
+
+	static constexpr bool value = std::is_same<bool, decltype(detect(std::declval<T>()))>::value;
+};
+
+
+template<typename T>
+struct has_eq
+{
+private:
+
+	static void detect(...);
+
+	template<typename U>
+	static decltype(static_cast<bool>(std::declval<U>() == std::declval<U>())) detect(const U &);
+
+public:
+
+	static constexpr bool value = std::is_same<bool, decltype(detect(std::declval<T>()))>::value;
+};
+
+
+template<typename T>
+struct has_neq
+{
+private:
+
+	static void detect(...);
+
+	template<typename U>
+	static decltype(static_cast<bool>(std::declval<U>() != std::declval<U>())) detect(const U &);
+
+public:
+
+	static constexpr bool value = std::is_same<bool, decltype(detect(std::declval<T>()))>::value;
+};
 
 
 template< template<typename, typename> class DerivedNodeType, typename KeyType, typename ValueType>
@@ -651,7 +718,7 @@ public:
 	const NodePtrType max_key() const;
 	const NodePtrType head_key() const;
 
-	const NodePtrType find(const KeyType &key) const;
+	const NodePtrType find(const typename std::enable_if<(has_lt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type &key) const;
 	const NodePtrType find(const KeyType *key) const;
 
 };
@@ -744,7 +811,7 @@ BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::~BinarySear
 
 
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::TreeType &BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::operator=(const BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::TreeType &tree)
+typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::TreeType &BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::operator=(const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::TreeType &tree)
 {
 	if (this != &tree) {
 
@@ -868,7 +935,7 @@ inline const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, V
 
 
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<( has_lt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type &key) const
 {
 	const NodePtrType ptr = head;
 
@@ -878,6 +945,18 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 	return ptr;
 }
 
+/*
+template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const KeyType &key) const
+{
+	const NodePtrType ptr = head;
+
+	while (ptr && (key != ptr->key))
+		ptr = (key < ptr->key) ? ptr->left : ptr->right;
+
+	return ptr;
+}
+*/
 
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
 const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const KeyType *key) const
@@ -924,7 +1003,7 @@ protected:
 };
 
 
-
+/*
 template<typename KeyType, typename ValueType>
 class SimpleTree : public BinarySearchTree<SimpleTree, SimpleNode, KeyType, ValueType> {
 private:
@@ -961,6 +1040,9 @@ public:
 	void remove(const KeyType *key);
 
 };
+*/
+
+
 
 
 
@@ -985,22 +1067,20 @@ public:
 	~Point2D() {
 		std::cout << "Destructor point2d " << std::endl;
 	}
+
+	void foo() { std::cout << "foo point 2D" << std::endl; }
+
+	float operator<(const Point2D& point) { return 1.f; }
 };
 
-Point2D foo()
+
+
+
+int main() 
 {
-	int a = 32;
-	std::cout << a << std::endl;
-	Point2D c(10, 10);
-	return c;
-}
+	Point2D point(10, 20);
 
-int main() {
-
-	int *a = nullptr;
 	
-	std::cout << foo().x << std::endl;
-
 	Sleep(2000);
 	return 0;
 }
