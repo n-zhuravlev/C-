@@ -1,5 +1,5 @@
 #include "tree.h"
-#include "metaclasses.h"
+#include <new>
 
 
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
@@ -214,7 +214,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator< and operator!=
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type &key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<K>::value && has_neq<K>::value), K>::type &key) const
 {
     const NodePtrType ptr = head;
 
@@ -227,7 +228,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator< and operator==
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<KeyType>::value && has_eq<KeyType>::value), KeyType>::type &key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<K>::value && has_eq<K>::value), K>::type &key) const
 {
     const NodePtrType ptr = head;
 
@@ -240,7 +242,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator> and operator!=
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type &key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<K>::value && has_neq<K>::value), K>::type &key) const
 {
     const NodePtrType ptr = head;
 
@@ -253,7 +256,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator> and operator==
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<KeyType>::value && has_eq<KeyType>::value), KeyType>::type &key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<K>::value && has_eq<K>::value), K>::type &key) const
 {
     const NodePtrType ptr = head;
 
@@ -266,7 +270,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator< and operator!=
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type *key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<K>::value && has_neq<K>::value), K>::type *key) const
 {
     const NodePtrType ptr = head;
 
@@ -279,7 +284,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator< and operator==
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<KeyType>::value && has_eq<KeyType>::value), KeyType>::type *key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_lt<K>::value && has_eq<K>::value), K>::type *key) const
 {
     const NodePtrType ptr = head;
 
@@ -292,7 +298,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator> and operator!=
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<KeyType>::value && has_neq<KeyType>::value), KeyType>::type *key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<K>::value && has_neq<K>::value), K>::type *key) const
 {
     const NodePtrType ptr = head;
 
@@ -305,7 +312,8 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
 
 // KeyType has overloaded operator> and operator==
 template< template<typename, typename> class DerivedTreeType, template<typename, typename> class TreeNodeType, typename KeyType, typename ValueType>
-const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<KeyType>::value && has_eq<KeyType>::value), KeyType>::type *key) const
+template<typename K>
+const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::NodePtrType BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueType>::find(const typename std::enable_if<(has_gt<K>::value && has_eq<K>::value), K>::type *key) const
 {
     const NodePtrType ptr = head;
 
@@ -313,4 +321,60 @@ const typename BinarySearchTree<DerivedTreeType, TreeNodeType, KeyType, ValueTyp
         ptr = (*key > ptr->key) ? ptr->right : ptr->left;
 
     return ptr;
+}
+
+
+template<typename KeyType, typename ValueType>
+void btree::SimpleTree<KeyType, ValueType>::add(const KeyType &key, const ValueType &value)
+{
+    if (!this->head) {
+        this->head = new NodeType(key, value);
+        return;
+    }
+
+    NodePtrType ptr = this->head;
+
+    while (true) {
+
+        // add key in left subtree
+        if (key < ptr->key) {
+
+            if (ptr->left)
+                ptr = ptr->left;
+
+            else {
+                ptr->left = new NodeType(key, value, ptr);
+                return;
+            }
+        }
+
+        // add key in right subtree
+        else if (key > ptr->key) {
+
+            if (ptr->right)
+                ptr = ptr->right;
+
+            else {
+                ptr->right = new NodeType(key, value, ptr);
+                return;
+            }
+        }
+
+        // TODO : valid expression?
+        // replace current value
+        else {
+
+            ptr->value.~ValueType();
+            new (&(ptr->value)) ValueType(value);
+            return;
+        }
+    }
+}
+
+
+template<typename KeyType, typename ValueType>
+void btree::SimpleTree<KeyType, ValueType>::remove(const KeyType &key)
+{
+    // remove node code
+    return;
 }

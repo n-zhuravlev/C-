@@ -1,7 +1,6 @@
 #include "iterator.h"
 
 // Iterator friend functions
-
 template<template<typename> class DerivedIteratorType, typename NodeType>
 inline bool operator==(const typename Iterator<DerivedIteratorType, NodeType>::NodePtrType ptr_, const typename Iterator<DerivedIteratorType, NodeType>::IteratorType &iter)
 {

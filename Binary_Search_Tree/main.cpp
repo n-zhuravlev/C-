@@ -1,47 +1,5 @@
 #include <iostream>
-#include "tree.h"
-
-
-/*
-template<typename KeyType, typename ValueType>
-class SimpleTree : public BinarySearchTree<SimpleTree, SimpleNode, KeyType, ValueType> {
-private:
-
-	using BaseTreeType = BinarySearchTree<::SimpleTree, SimpleNode, KeyType, ValueType>;
-
-public:
-
-	SimpleTree() :
-		BaseTreeType() {
-		;
-	}
-
-	explicit SimpleTree(const KeyType &key, const ValueType &value) :
-		BaseTreeType(key, value) {
-		;
-	}
-
-	explicit SimpleTree(const KeyType *key, const ValueType *value) :
-		BaseTreeType(key, value) {
-		;
-	}
-
-	SimpleTree(const SimpleTree &tree) :
-		BaseTreeType(tree) {
-		;
-	}
-
-	void add(const KeyType &key, const ValueType &value);
-	void add(const KeyType *key, const ValueType *value);
-	void add(const KeyType &key, const ValueType *value);
-	void add(const KeyType *key, const ValueType &value);
-	void remove(const KeyType &key);
-	void remove(const KeyType *key);
-
-};
-*/
-
-
+#include "tree.cpp"
 
 
 
@@ -56,7 +14,7 @@ public:
     }
 
     Point2D(int x, int y) : x(x), y(y) {
-        std::cout << "New point2d constructor" << std::endl;
+        std::cout << "New point2d constructor with x:" << x << " and y:" << y << std::endl;
     }
 
     Point2D(const Point2D &obj) : x(obj.x), y(obj.y) {
@@ -69,15 +27,34 @@ public:
 
     void foo() { std::cout << "foo point 2D" << std::endl; }
 
-    float operator<(const Point2D& point) { return 1.f; }
+    bool operator<(const Point2D& point) const{
+        return static_cast<bool>(x < point.x);
+    }
+
+    bool operator>(const Point2D& point) const{
+        return static_cast<bool>(x > point.x);
+    }
+
+    bool operator==(const Point2D& point) const{
+        return static_cast<bool>((x == point.x) && (y == point.y));
+    }
+
+    bool operator!=(const Point2D& point) const{
+        return static_cast<bool>((x != point.x) && (y != point.y));
+    }
 };
-
-
 
 
 int main()
 {
     Point2D point(10, 20);
+    btree::SimpleTree<Point2D, Point2D> tree;
+
+
+    tree.add(point, point);
+    tree.add(point, point);
+    tree.add(point, point);
+    tree.add(point, point);
 
     return 0;
 }
