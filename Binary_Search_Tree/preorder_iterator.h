@@ -174,9 +174,7 @@ typename btree::iter::PreorderIterator<Node> btree::iter::PreorderIterator<Node>
 		}
 	}
 
-	return *this;
-
-	return btree::iter::InorderIterator<Node>(previous_ptr);
+	return btree::iter::PreorderIterator<Node>(previous_ptr);
 }
 
 #endif //SEARCHTREE_PREORDER_ITERATOR_H
