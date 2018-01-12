@@ -37,7 +37,7 @@ namespace btree {
 
 
 template<template<typename, typename> class DerivedNode, typename Key, typename Value>
-inline explicit btree::node::BaseNode<DerivedNode, Key, Value>::BaseNode(const Key &key, const Value &value, const NodePtr parent_ptr) :
+inline btree::node::BaseNode<DerivedNode, Key, Value>::BaseNode(const Key &key, const Value &value, const NodePtr parent_ptr) :
 	key(key), value(value), parent(parent_ptr), right(nullptr), left(nullptr) {}
 
 template<template<typename, typename> class DerivedNode, typename Key, typename Value>
